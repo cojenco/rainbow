@@ -11,14 +11,15 @@ from google.cloud import vision
 def detect_color(uri):
     print('Received URI: {}'.format(uri))
     client = vision.ImageAnnotatorClient()
-    # image = vision.types.Image()
-    # image.source.image_uri = uri
-
-    response = client.image_properties({
-        'source': {
-            'image_uri': uri
-        }
-    })
+    image = vision.types.Image()
+    image.source.image_uri = uri
+    response = client.image_properties(image=image)
+    # use client library image_properties kwargs equivalent as below (https://googleapis.dev/python/vision/latest/gapic/v1/api.html)
+    # response = client.image_properties({
+    #     'source': {
+    #         'image_uri': uri
+    #     }
+    # })
     props = response.image_properties_annotation
 
     print('BELOW ARE DOMINANT COLORS:')
