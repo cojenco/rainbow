@@ -8,7 +8,7 @@ from google.cloud import pubsub_v1
 # [END rainbow_setup]
 
 
-# [START functions_detect_color]
+# [START functions_detect_color][Called in img-colors-extract]
 def detect_color(uri):
     print('Received URI: {}'.format(uri))
     client = vision.ImageAnnotatorClient()
@@ -38,7 +38,7 @@ def detect_color(uri):
 # [END functions_detect_color]
 
 
-# [START functions_publish_colors_detected]
+# [START functions_publish_colors_detected][Called in img-colors-extract]
 def publish_colors_detected(uri):
     print('Arrived at publish_colors_detected with {}'.format(uri))
     publisher = pubsub_v1.PublisherClient()
@@ -54,7 +54,7 @@ def publish_colors_detected(uri):
 # [END functions_publish_colors_detected]
 
 
-# [START functions_process_img]
+# [START functions_process_img][ENTRY POINT for img-colors-extract]
 def process_img(event,context):
     # triggered by cloud storage event: google.storage.object.finalize
     bucket = event['bucket']
@@ -73,7 +73,7 @@ def process_img(event,context):
 # [END functions_process_img]
 
 
-# [START functions_store_colors]
+# [START functions_store_colors][ENTRY POINT for store_colors]
 def store_colors(event, context):
     """Background Cloud Function to be triggered by Pub/Sub.
     Args:
