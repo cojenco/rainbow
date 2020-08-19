@@ -4,6 +4,7 @@ import base64
 import json
 import os
 from google.cloud import vision
+from google.cloud import pubsub_v1
 # [END rainbow_setup]
 
 
@@ -20,9 +21,10 @@ def detect_color(uri):
     #         'image_uri': uri
     #     }
     # })
-    props = response.image_properties_annotation
 
+    props = response.image_properties_annotation
     print('BELOW ARE DOMINANT COLORS:')
+
     for color in props.dominant_colors.colors:
         print('{}'.format(color))
 
@@ -31,7 +33,25 @@ def detect_color(uri):
             '{}\nFor more info on error messages, check: '
             'https://cloud.google.com/apis/design/errors'.format(
                 response.error.message))
+    else:
+        publish_colors_detected(uri)
 # [END functions_detect_color]
+
+
+# [START functions_publish_colors_detected]
+def publish_colors_detected(uri):
+    print('Arrived at publish_colors_detected with {}'.format(uri))
+    publisher = pubsub_v1.PublisherClient()
+    # topic_name = 'projects/{project_id}/topics/{topic}'.format(
+    #     project_id=os.getenv('GOOGLE_CLOUD_PROJECT'),
+    #     topic='TopicColorsDetected',
+    # )
+    topic_name = 'projects/keen-boulder-286521/topics/TopicColorsDetected'
+    
+    future = publisher.publish(topic_name, b'Rainbow!')
+    message_id = future.result()
+    print(' {} '.format(message_id))
+# [END functions_publish_colors_detected]
 
 
 # [START functions_process_img]
@@ -49,8 +69,25 @@ def process_img(event,context):
 
     # call functions_detect_color
     detect_color(img_uri)
-
+    # publish_colors_detected(img_uri)
 # [END functions_process_img]
+
+
+# [START functions_store_colors]
+def store_colors(event, context):
+    """Background Cloud Function to be triggered by Pub/Sub.
+    Args:
+         event (dict):  The dictionary with data specific to this type of
+         event. The `data` field contains the PubsubMessage message. The
+         `attributes` field will contain custom attributes if there are any.
+         context (google.cloud.functions.Context): The Cloud Functions event
+         metadata. The `event_id` field contains the Pub/Sub message ID. The
+         `timestamp` field contains the publish time.
+    """
+    print('RAINBOW WIP! Arrived at subscriber FUNCTION store_colors')
+    print("""This Function was triggered by messageId {} published at {}
+    """.format(context.event_id, context.timestamp))
+# [END functions_store_colors]
 
 
 # [START functions_detect_colors]
