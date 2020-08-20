@@ -11,7 +11,7 @@ from google.cloud import firestore
 
 
 # [START functions_detect_color][Called in img-colors-extract]
-def detect_color(uri):
+def detect_color(uri, timestamp, event_id=0):
     print('Received URI: {}'.format(uri))
     client = vision.ImageAnnotatorClient()
     image = vision.types.Image()
@@ -25,19 +25,30 @@ def detect_color(uri):
     # })
 
     props = response.image_properties_annotation
-    print('BELOW ARE DOMINANT COLORS:')
+    db = firestore.Client()
 
+    # Store dominant colors: Add data/documents to Firestore
     for color in props.dominant_colors.colors:
-        print('{}'.format(color))
+        # print('{}'.format(color))
+        data = {
+          'red': color.color.red,
+          'green': color.color.green,
+          'blue': color.color.blue,
+          'score': color.score,
+          'pixel_fraction': color.pixel_fraction,
+          'img_uri': uri,
+          'event_id': event_id,
+          'timestamp': timestamp,
+        }
+        db.collection('meals').add(data)
+    # End of For loop 
 
     if response.error.message:
         raise Exception(
             '{}\nFor more info on error messages, check: '
-            'https://cloud.google.com/apis/design/errors'.format(
-                response.error.message))
+            'https://cloud.google.com/apis/design/errors'.format(response.error.message))
     else:
         publish_colors_detected(uri)
-
 # [END functions_detect_color]
 
 
@@ -62,6 +73,8 @@ def process_img(event,context):
     # triggered by cloud storage event: google.storage.object.finalize
     bucket = event['bucket']
     filename = event['name']
+    timestamp = event['timeCreated']
+    event_id = context.event_id
     img_uri = 'gs://{}/{}'.format(bucket, filename)
     print('URI: {}'.format(img_uri))
     print('Event ID: {}'.format(context.event_id))
@@ -71,8 +84,7 @@ def process_img(event,context):
     print('Created: {}'.format(event['timeCreated']))
 
     # call functions_detect_color
-    detect_color(img_uri)
-    # publish_colors_detected(img_uri)
+    detect_color(img_uri, timestamp, event_id)
 # [END functions_process_img]
 
 
@@ -91,7 +103,7 @@ def store_colors(event, context):
     print("""This Function was triggered by messageId {} published at {}
     """.format(context.event_id, context.timestamp))
 
-    # write to Firestore
+    # To be deleted and re-deployed: write to Firestore
     db = firestore.Client()
     doc_ref = db.collection('cities').document('houston')
     doc_ref.set({
