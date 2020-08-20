@@ -31,14 +31,14 @@ def detect_color(uri, timestamp, event_id=0):
     for color in props.dominant_colors.colors:
         # print('{}'.format(color))
         data = {
-          'red': color.color.red,
-          'green': color.color.green,
-          'blue': color.color.blue,
-          'score': color.score,
-          'pixel_fraction': color.pixel_fraction,
-          'img_uri': uri,
-          'event_id': event_id,
-          'timestamp': timestamp,
+            'red': color.color.red,
+            'green': color.color.green,
+            'blue': color.color.blue,
+            'score': color.score,
+            'pixel_fraction': color.pixel_fraction,
+            'img_uri': uri,
+            'event_id': event_id,
+            'timestamp': timestamp,
         }
         db.collection('meals').add(data)
     # End of For loop 
