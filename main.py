@@ -37,6 +37,7 @@ def detect_color(uri):
                 response.error.message))
     else:
         publish_colors_detected(uri)
+
 # [END functions_detect_color]
 
 
@@ -92,14 +93,19 @@ def store_colors(event, context):
 
     # write to Firestore
     db = firestore.Client()
-    doc_ref = db.collection(u'cities').document(u'seattle')
+    doc_ref = db.collection('cities').document('houston')
     doc_ref.set({
-        u'name': u'Seattle',
-        u'state': u'Washington',
-        u'country': u'USA'
+        'name': 'Houston',
+        'state': 'Texas',
+        'country': 'USA'
     })
     print('Did I arrive here?')
 # [END functions_store_colors]
+
+
+# [START functions_store_color_docs][Called in img-colors-extract]
+# def store_color_docs():
+# [END functions_store_color_docs]
 
 
 # [START functions_detect_colors]
