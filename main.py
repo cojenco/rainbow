@@ -5,6 +5,8 @@ import json
 import os
 from google.cloud import vision
 from google.cloud import pubsub_v1
+from google.cloud import firestore
+# export GOOGLE_APPLICATION_CREDENTIALS="/home/Users/cathyo/Downloads/My First Project-59cc3328ec06.json"
 # [END rainbow_setup]
 
 
@@ -87,6 +89,16 @@ def store_colors(event, context):
     print('RAINBOW WIP! Arrived at subscriber FUNCTION store_colors')
     print("""This Function was triggered by messageId {} published at {}
     """.format(context.event_id, context.timestamp))
+
+    # write to Firestore
+    db = firestore.Client()
+    doc_ref = db.collection(u'cities').document(u'seattle')
+    doc_ref.set({
+        u'name': u'Seattle',
+        u'state': u'Washington',
+        u'country': u'USA'
+    })
+    print('Did I arrive here?')
 # [END functions_store_colors]
 
 
