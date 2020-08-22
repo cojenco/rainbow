@@ -25,6 +25,7 @@ def detect_color(uri, timestamp, event_id=0):
     # })
 
     props = response.image_properties_annotation
+    colors_array = props.dominant_colors.colors
     db = firestore.Client()
 
     # Store dominant colors: Add data/documents to Firestore
@@ -48,13 +49,14 @@ def detect_color(uri, timestamp, event_id=0):
             '{}\nFor more info on error messages, check: '
             'https://cloud.google.com/apis/design/errors'.format(response.error.message))
     else:
-        publish_colors_detected(uri)
+        publish_colors_detected(uri, colors_array)
 # [END functions_detect_color]
 
 
 # [START functions_publish_colors_detected][Called in img-colors-extract]
-def publish_colors_detected(uri):
+def publish_colors_detected(uri, colors_array):
     print('Arrived at publish_colors_detected with {}'.format(uri))
+    print('{}'.format(colors_array))
     publisher = pubsub_v1.PublisherClient()
     # topic_name = 'projects/{project_id}/topics/{topic}'.format(
     #     project_id=os.getenv('GOOGLE_CLOUD_PROJECT'),
