@@ -85,18 +85,19 @@ def store_colors(event, context):
 
     # organize data for Firestore
     print(' {} '.format(message))
-    # event_id = message.event_id
-    # meal = {
-    #     'img_uri': message.img_uri,
-    #     'event_id': message.event_id,
-    #     'timestamp': message.timestamp,
-    # }
+    event_id = message['event_id']
+    # print(' {} '.format(event_id))
+    meal = {
+        'img_uri': message['img_uri'],
+        'event_id': event_id,
+        'timestamp': message['timestamp'],
+    }
 
     # add data to Firestore with this data structure: users/{user_name}/meals/{event_id}/colors/{color_data}
     # can be replaced by a directory format?
-    # test_user_ref = db.collection('users').document('testUser1')
-    # meal_ref = test_user_ref.collection('meals').document('{}'.format(event_id))
-    # meal_ref.set(meal)
-    # color_ref = meal_ref.collection('colors').add(message)
+    test_user_ref = db.collection('users').document('testUser1')
+    meal_ref = test_user_ref.collection('meals').document('{}'.format(event_id))
+    meal_ref.set(meal)
+    color_ref = meal_ref.collection('colors').add(message)
     print('Did I arrive here?')
 # [END functions_store_colors]
