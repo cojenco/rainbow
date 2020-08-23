@@ -6,14 +6,18 @@ import os
 from google.cloud import vision
 from google.cloud import pubsub_v1
 from google.cloud import firestore
-# export GOOGLE_APPLICATION_CREDENTIALS="/home/Users/cathyo/Downloads/My First Project-59cc3328ec06.json"
+
+client = vision.ImageAnnotatorClient()
+publisher = pubsub_v1.PublisherClient()
+db = firestore.Client()
+
 # [END rainbow_setup]
 
 
 # [START functions_detect_color][Called in img-colors-extract]
 def detect_color(uri, timestamp, event_id=0):
     print('Received URI: {}'.format(uri))
-    client = vision.ImageAnnotatorClient()
+    # client = vision.ImageAnnotatorClient()
     image = vision.types.Image()
     image.source.image_uri = uri
     response = client.image_properties(image=image)
@@ -26,7 +30,6 @@ def detect_color(uri, timestamp, event_id=0):
 
     props = response.image_properties_annotation
     colors_array = props.dominant_colors.colors
-    db = firestore.Client()
 
     # Store dominant colors: Add data/documents to Firestore
     for color in props.dominant_colors.colors:
@@ -41,15 +44,21 @@ def detect_color(uri, timestamp, event_id=0):
             'event_id': event_id,
             'timestamp': timestamp,
         }
-        db.collection('meals').add(data)
+
+        message_data = json.dumps(data).encode('utf-8')
+        topic_name = 'projects/keen-boulder-286521/topics/TopicColorsDetected'
+    
+        future = publisher.publish(topic_name, data=message_data)
+        message_id = future.result()
+        print(' {} '.format(message_id))
     # End of For loop 
 
     if response.error.message:
         raise Exception(
             '{}\nFor more info on error messages, check: '
             'https://cloud.google.com/apis/design/errors'.format(response.error.message))
-    else:
-        publish_colors_detected(uri, colors_array)
+    # else:
+        # publish_colors_detected(uri, colors_array)
 # [END functions_detect_color]
 
 
@@ -57,7 +66,7 @@ def detect_color(uri, timestamp, event_id=0):
 def publish_colors_detected(uri, colors_array):
     print('Arrived at publish_colors_detected with {}'.format(uri))
     print('{}'.format(colors_array))
-    publisher = pubsub_v1.PublisherClient()
+    
     # topic_name = 'projects/{project_id}/topics/{topic}'.format(
     #     project_id=os.getenv('GOOGLE_CLOUD_PROJECT'),
     #     topic='TopicColorsDetected',
@@ -102,16 +111,25 @@ def store_colors(event, context):
          `timestamp` field contains the publish time.
     """
     print('RAINBOW WIP! Arrived at subscriber FUNCTION store_colors')
-    print("""This Function was triggered by messageId {} published at {}
-    """.format(context.event_id, context.timestamp))
+    # print("""This Function was triggered by messageId {} published at {}
+    # """.format(context.event_id, context.timestamp))
+    print(' {} '.format(event))
+
+    if event.get('data'):
+        message_data = base64.b64decode(event['data']).decode('utf-8')
+        message = json.loads(message_data)
+    else:
+        raise ValueError('Data sector is missing in the Pub/Sub message.')
+
+    print(' {} '.format(message))
 
     # To be deleted and re-deployed: write to Firestore
-    db = firestore.Client()
-    doc_ref = db.collection('cities').document('houston')
+    # db = firestore.Client()
+    doc_ref = db.collection('cities').document('vancouver')
     doc_ref.set({
-        'name': 'Houston',
-        'state': 'Texas',
-        'country': 'USA'
+        'name': 'Vancouver',
+        'state': 'BC',
+        'country': 'Canada'
     })
     print('Did I arrive here?')
 # [END functions_store_colors]
