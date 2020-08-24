@@ -33,9 +33,10 @@ def detect_color(uri, timestamp, event_id=0):
             'blue': color.color.blue,
             'score': color.score,
             'pixel_fraction': color.pixel_fraction,
-            'img_uri': uri,
             'event_id': event_id,
             'timestamp': timestamp,
+            'img_uri': uri,
+            'uID': 'testUser10',      #TBD
         }
 
         message_data = json.dumps(data).encode('utf-8')
@@ -91,18 +92,19 @@ def store_colors(event, context):
         'img_uri': message['img_uri'],
         'event_id': event_id,
         'timestamp': message['timestamp'],
+        'uID': 'testUser10'      #TBD
     }
 
     user = {
-        'email': 'testUser1@gmail.com',
-        'uID': 'testUser1',
+        'email': 'testUser10@gmail.com',
+        'uID': 'testUser10',
     }
 
     # add data to Firestore with this data structure: users/{user_name}/meals/{event_id}/colors/{color_data}
     # can be replaced by a directory format?
-    test_user_ref = db.collection('users').document('testUser1')
+    test_user_ref = db.collection('users').document('testUser10')
     test_user_ref.set(user)
-    meal_ref = test_user_ref.collection('meals').document('{}'.format(event_id))
+    meal_ref = db.collection('meals').document('{}'.format(event_id))
     meal_ref.set(meal)
     color_ref = meal_ref.collection('colors').add(message)
     print('Did I arrive here?')
