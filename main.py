@@ -6,6 +6,7 @@ import os
 from google.cloud import vision
 from google.cloud import pubsub_v1
 from google.cloud import firestore
+from datetime import datetime, timezone, timedelta
 
 client = vision.ImageAnnotatorClient()
 publisher = pubsub_v1.PublisherClient()
@@ -113,7 +114,7 @@ def store_colors(event, context):
 
 # [START functions_retrieve_colors][ENTRY POINT for retrieve_colors]
 def retrieve_colors(event, context):
-    # background cloud cunction to be triggered by Pub/Sub
+    # background cloud cunction to be triggered by Pub/Sub topic: TopicRetrieveColors
     print('Retrieving colors from Firestore')
     print(' {} '.format(event))
     print('BELOW IS CONTEXT')
@@ -152,3 +153,52 @@ def retrieve_colors(event, context):
     # meals = user.collection(u'meals').where(u'event_id', u'==', u'1454537197728696')
     print('here here?!')
 # [END functions_retrieve_colors][ENTRY POINT for retrieve_colors]
+
+
+# [START functions_get_daterange_colors][ENTRY POINT for get_daterange_colors]
+def get_daterange_colors(event, context):
+    # background cloud cunction to be triggered by Pub/Sub topic: TopicGetDaterangeColors
+    print('Get colors by daterange')
+    print(' {} '.format(event))
+    print('BELOW IS CONTEXT')
+    print(' {} '.format(context))
+    # topic_timestamp = context['timestamp']
+    utc_now = datetime.now(timezone.utc)
+    dt = utc_now - timedelta(7)
+    start_time = u'{}'.format(dt)
+    end_time = u'{}'.format(utc_now)
+    print(start_time)
+    print(end_time)
+
+    
+    uID = 'testUser10'
+    # uID = event['attributes']['uID']
+    # event_id = event['attributes']['event_id']
+    # print('{}'.format(event_id))
+
+    # meals_ref = db.collection(u'meals').where(u'uID', u'==', uID)
+    # print('{}'.format(meals_ref))
+    # daterange_meals = meals_ref.where(u'timestamp', u'>=', start_time).where(u'timestamp', u'<=', end_time)
+    # print('{}'.format(datarange_meals))
+
+
+
+    # collections = db.collection('meals').document('{}'.format(event_id)).collections()
+    # print(' collections: {} '.format(collections))
+    # for collection in collections:
+    #     print(' collection: {} '.format(collection))
+    #     for doc in collection.stream():
+    #         print(f'{doc.id} => {doc.to_dict()}')
+
+    # query = db.collection_group(u'colors').where(u'event_id', u'==', u'1454537197728696')
+    #     # .where(u'timestamp', u'>', u'2020-08-23T20:00:44.411Z')
+    # print('Here Here?')
+    # print(' {} '.format(query))
+    
+    # user = db.collection(u'users').where(u'uID', u'==', u'{}'.format(message))
+    # meals = user.collection(u'meals').where(u'timestamp', u'>', u'2020-08-23T20:00:44.411Z')
+    ### user = db.collection(u'users').where(u'uID', u'==', u'testUser1').stream()
+    ### print(' {} '.format(user))
+    # meals = user.collection(u'meals').where(u'event_id', u'==', u'1454537197728696')
+    print('here here?!')
+# [END functions_get_daterange_colors][ENTRY POINT for get_daterange_colors]
