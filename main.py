@@ -127,8 +127,16 @@ def retrieve_colors(event, context):
         print('Data sector is missing in the Pub/Sub message')
     
     # query Firestore: retrieve meal docs from users/{'uID'}/meals collection
-    collections = db.collection('users').document('{}'.format(uID)).collections()
+    # collections = db.collection('users').document('{}'.format(uID)).collections()
+    # for collection in collections:
+    #     for doc in collection.stream():
+    #         print(f'{doc.id} => {doc.to_dict()}')
+    event_id = event['attributes']['event_id']
+    print('{}'.format(event_id))
+    collections = db.collection('meals').document('{}'.format(event_id)).collections()
+    print(' collections: {} '.format(collections))
     for collection in collections:
+        print(' collection: {} '.format(collection))
         for doc in collection.stream():
             print(f'{doc.id} => {doc.to_dict()}')
 
