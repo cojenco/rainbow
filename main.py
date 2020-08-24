@@ -93,11 +93,53 @@ def store_colors(event, context):
         'timestamp': message['timestamp'],
     }
 
+    user = {
+        'email': 'testUser1@gmail.com',
+        'uID': 'testUser1',
+    }
+
     # add data to Firestore with this data structure: users/{user_name}/meals/{event_id}/colors/{color_data}
     # can be replaced by a directory format?
     test_user_ref = db.collection('users').document('testUser1')
+    test_user_ref.set(user)
     meal_ref = test_user_ref.collection('meals').document('{}'.format(event_id))
     meal_ref.set(meal)
     color_ref = meal_ref.collection('colors').add(message)
     print('Did I arrive here?')
 # [END functions_store_colors]
+
+
+# [START functions_retrieve_colors][ENTRY POINT for retrieve_colors]
+def retrieve_colors(event, context):
+    # background cloud cunction to be triggered by Pub/Sub
+    print('Retrieving colors from Firestore')
+    # print(' {} '.format(event))
+
+    # if event.get('data'):
+    #     message_data = base64.b64decode(event['data']).decode('utf-8')
+    #     message = json.loads(message_data)
+    # else:
+    #     raise ValueError('Data sector is missing in the Pub/Sub message.')
+
+    # organize data for Firestore
+    # print(' {} '.format(message))
+    # query = db.collection_group(u'colors').where(u'event_id', u'==', u'1454537197728696')
+    #     # .where(u'timestamp', u'>', u'2020-08-23T20:00:44.411Z')
+    # print('Here Here?')
+    # print(' {} '.format(query))
+    
+    # user = db.collection(u'users').where(u'uID', u'==', u'{}'.format(message))
+    # meals = user.collection(u'meals').where(u'timestamp', u'>', u'2020-08-23T20:00:44.411Z')
+    ### user = db.collection(u'users').where(u'uID', u'==', u'testUser1').stream()
+    ### print(' {} '.format(user))
+    # meals = user.collection(u'meals').where(u'event_id', u'==', u'1454537197728696')
+    
+
+    collections = db.collection('users').document('testUser1').collections()
+    for collection in collections:
+        for doc in collection.stream():
+            print(f'{doc.id} => {doc.to_dict()}')
+            
+    print('here here?!')
+    
+# [END functions_store_colors][ENTRY POINT for retrieve_colors]
