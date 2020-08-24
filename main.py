@@ -113,16 +113,23 @@ def store_colors(event, context):
 def retrieve_colors(event, context):
     # background cloud cunction to be triggered by Pub/Sub
     print('Retrieving colors from Firestore')
-    # print(' {} '.format(event))
+    print(' {} '.format(event))
+    print('BELOW IS CONTEXT')
+    print(' {} '.format(context))
+    uID = 'testUser1'
 
-    # if event.get('data'):
-    #     message_data = base64.b64decode(event['data']).decode('utf-8')
-    #     message = json.loads(message_data)
-    # else:
-    #     raise ValueError('Data sector is missing in the Pub/Sub message.')
+    if event.get('data'):
+        uID = base64.b64decode(event['data']).decode('utf-8')
+        print(' {} '.format(uID))
+    else:
+        print('Data sector is missing in the Pub/Sub message')
+    
+    # query Firestore: retrieve meal docs from users/{'uID'}/meals collection
+    collections = db.collection('users').document('{}'.format(uID)).collections()
+    for collection in collections:
+        for doc in collection.stream():
+            print(f'{doc.id} => {doc.to_dict()}')
 
-    # organize data for Firestore
-    # print(' {} '.format(message))
     # query = db.collection_group(u'colors').where(u'event_id', u'==', u'1454537197728696')
     #     # .where(u'timestamp', u'>', u'2020-08-23T20:00:44.411Z')
     # print('Here Here?')
@@ -133,13 +140,5 @@ def retrieve_colors(event, context):
     ### user = db.collection(u'users').where(u'uID', u'==', u'testUser1').stream()
     ### print(' {} '.format(user))
     # meals = user.collection(u'meals').where(u'event_id', u'==', u'1454537197728696')
-    
-
-    collections = db.collection('users').document('testUser1').collections()
-    for collection in collections:
-        for doc in collection.stream():
-            print(f'{doc.id} => {doc.to_dict()}')
-            
     print('here here?!')
-    
-# [END functions_store_colors][ENTRY POINT for retrieve_colors]
+# [END functions_retrieve_colors][ENTRY POINT for retrieve_colors]
