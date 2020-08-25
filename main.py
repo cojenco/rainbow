@@ -176,28 +176,16 @@ def get_daterange_colors(event, context):
     # event_id = event['attributes']['event_id']
     # print('{}'.format(event_id))
 
-    meals_ref = db.collection(u'meals').where(u'timestamp', u'>=', start_time).where(u'timestamp', u'<=', end_time).stream()
-    print('{}'.format(meals_ref))
-    for doc in meals_ref:
+    meals_ref = db.collection(u'meals').where(u'timestamp', u'>=', start_time).where(u'timestamp', u'<=', end_time)
+    meals = meals_ref.stream()
+    for doc in meals:
         print(f'{doc.id} => {doc.to_dict()}')
-    # daterange_meals = meals_ref.where(u'timestamp', u'>=', start_time).where(u'timestamp', u'<=', end_time).stream()
-    # print('{}'.format(daterange_meals))
+        event_id = f'{doc.id}'
+        get_collection_colors(event_id)
 
-    # for doc in daterange_meals:
-    #     print(f'{doc.id} => {doc.to_dict()}')
+    daterange_meals = meals_ref.where(u'uID', u'==', uID).stream()
+    print('CAN WE SEE second query? {}'.format(daterange_meals))
 
-
-    # collections = db.collection('meals').document('{}'.format(event_id)).collections()
-    # print(' collections: {} '.format(collections))
-    # for collection in collections:
-    #     print(' collection: {} '.format(collection))
-    #     for doc in collection.stream():
-    #         print(f'{doc.id} => {doc.to_dict()}')
-
-    # query = db.collection_group(u'colors').where(u'event_id', u'==', u'1454537197728696')
-    #     # .where(u'timestamp', u'>', u'2020-08-23T20:00:44.411Z')
-    # print('Here Here?')
-    # print(' {} '.format(query))
     
     # user = db.collection(u'users').where(u'uID', u'==', u'{}'.format(message))
     # meals = user.collection(u'meals').where(u'timestamp', u'>', u'2020-08-23T20:00:44.411Z')
@@ -206,3 +194,12 @@ def get_daterange_colors(event, context):
     # meals = user.collection(u'meals').where(u'event_id', u'==', u'1454537197728696')
     print('here here?!')
 # [END functions_get_daterange_colors][ENTRY POINT for get_daterange_colors]
+
+
+# [START functions_get_collection_colors][Called in get_daterange_colors]
+def get_collection_colors(event_id):
+        collections = db.collection('meals').document('{}'.format(event_id)).collections()
+        for collection in collections:
+            for doc in collection.stream():
+                print(f'{doc.id} => {doc.to_dict()}')
+# [END functions_get_collection_colors][Called in get_daterange_colors]
