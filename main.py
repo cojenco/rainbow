@@ -176,10 +176,15 @@ def get_daterange_colors(event, context):
     # event_id = event['attributes']['event_id']
     # print('{}'.format(event_id))
 
-    meals_ref = db.collection(u'meals').where(u'uID', u'==', uID)
+    meals_ref = db.collection(u'meals').where(u'uID', u'==', uID).stream()
     print('{}'.format(meals_ref))
-    daterange_meals = meals_ref.where(u'timestamp', u'>=', start_time).where(u'timestamp', u'<=', end_time)
-    print('{}'.format(daterange_meals))
+    for doc in meals_ref:
+        print(f'{doc.id} => {doc.to_dict()}')
+    # daterange_meals = meals_ref.where(u'timestamp', u'>=', start_time).where(u'timestamp', u'<=', end_time).stream()
+    # print('{}'.format(daterange_meals))
+
+    # for doc in daterange_meals:
+    #     print(f'{doc.id} => {doc.to_dict()}')
 
 
     # collections = db.collection('meals').document('{}'.format(event_id)).collections()
