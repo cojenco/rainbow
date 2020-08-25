@@ -127,31 +127,19 @@ def retrieve_colors(event, context):
     else:
         print('Data sector is missing in the Pub/Sub message')
     
+    # query Firestore: filter meals within the past week
     # query Firestore: retrieve meal docs from users/{'uID'}/meals collection
-    # collections = db.collection('users').document('{}'.format(uID)).collections()
-    # for collection in collections:
-    #     for doc in collection.stream():
-    #         print(f'{doc.id} => {doc.to_dict()}')
-    event_id = event['attributes']['event_id']
-    print('{}'.format(event_id))
-    collections = db.collection('meals').document('{}'.format(event_id)).collections()
-    print(' collections: {} '.format(collections))
-    for collection in collections:
-        print(' collection: {} '.format(collection))
-        for doc in collection.stream():
-            print(f'{doc.id} => {doc.to_dict()}')
+    utc_now = datetime.now(timezone.utc)
+    dt = utc_now - timedelta(7)
+    start_time = u'{}'.format(dt)
+    end_time = u'{}'.format(utc_now)
 
-    # query = db.collection_group(u'colors').where(u'event_id', u'==', u'1454537197728696')
-    #     # .where(u'timestamp', u'>', u'2020-08-23T20:00:44.411Z')
-    # print('Here Here?')
-    # print(' {} '.format(query))
-    
-    # user = db.collection(u'users').where(u'uID', u'==', u'{}'.format(message))
-    # meals = user.collection(u'meals').where(u'timestamp', u'>', u'2020-08-23T20:00:44.411Z')
-    ### user = db.collection(u'users').where(u'uID', u'==', u'testUser1').stream()
-    ### print(' {} '.format(user))
-    # meals = user.collection(u'meals').where(u'event_id', u'==', u'1454537197728696')
-    print('here here?!')
+    meals_ref = db.collection('users').document('{}'.format(uID)).collection('meals').where(u'timestamp', u'>=', start_time).where(u'timestamp', u'<=', end_time)
+    meals = meals_ref.stream()
+    for doc in meals:
+        # print(f'{doc.id} => {doc.to_dict()}')
+        event_id = f'{doc.id}'
+        get_meal_colors(uID, event_id)
 # [END functions_retrieve_colors][ENTRY POINT for retrieve_colors]
 
 
@@ -190,3 +178,12 @@ def get_collection_colors(event_id):
             for doc in collection.stream():
                 print(f'{doc.id} => {doc.to_dict()}')
 # [END functions_get_collection_colors][Called in get_daterange_colors]
+
+
+# [START functions_get_meal_colors][Called in retrieve_colors]
+def get_meal_colors(uID, event_id):
+        collections = db.collection('users').document('{}'.format(uID)).collection('meals').document('{}'.format(event_id)).collections()
+        for collection in collections:
+            for doc in collection.stream():
+                print(f'{doc.id} => {doc.to_dict()}')
+# [END functions_get_meal_colors][Called in retrieve_colors]
