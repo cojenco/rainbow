@@ -176,7 +176,7 @@ def get_daterange_colors(event, context):
     # event_id = event['attributes']['event_id']
     # print('{}'.format(event_id))
 
-    meals_ref = db.collection(u'meals').where(u'uID', u'==', uID).stream()
+    meals_ref = db.collection(u'meals').where(u'timestamp', u'>=', start_time).where(u'timestamp', u'<=', end_time).stream()
     print('{}'.format(meals_ref))
     for doc in meals_ref:
         print(f'{doc.id} => {doc.to_dict()}')
