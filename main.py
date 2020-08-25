@@ -159,10 +159,9 @@ def retrieve_colors(event, context):
 def get_daterange_colors(event, context):
     # background cloud cunction to be triggered by Pub/Sub topic: TopicGetDaterangeColors
     print('Get colors by daterange')
-    print(' {} '.format(event))
-    print('BELOW IS CONTEXT')
-    print(' {} '.format(context))
-    # topic_timestamp = context['timestamp']
+    # print(' {} '.format(event))
+    # print('BELOW IS CONTEXT')
+    # print(' {} '.format(context))
     utc_now = datetime.now(timezone.utc)
     dt = utc_now - timedelta(7)
     start_time = u'{}'.format(dt)
@@ -170,12 +169,8 @@ def get_daterange_colors(event, context):
     print(start_time)
     print(end_time)
 
-    
     uID = 'testUser10'
     # uID = event['attributes']['uID']
-    # event_id = event['attributes']['event_id']
-    # print('{}'.format(event_id))
-
     meals_ref = db.collection(u'meals').where(u'timestamp', u'>=', start_time).where(u'timestamp', u'<=', end_time)
     meals = meals_ref.stream()
     for doc in meals:
@@ -185,14 +180,6 @@ def get_daterange_colors(event, context):
 
     daterange_meals = meals_ref.where(u'uID', u'==', uID).stream()
     print('CAN WE SEE second query? {}'.format(daterange_meals))
-
-    
-    # user = db.collection(u'users').where(u'uID', u'==', u'{}'.format(message))
-    # meals = user.collection(u'meals').where(u'timestamp', u'>', u'2020-08-23T20:00:44.411Z')
-    ### user = db.collection(u'users').where(u'uID', u'==', u'testUser1').stream()
-    ### print(' {} '.format(user))
-    # meals = user.collection(u'meals').where(u'event_id', u'==', u'1454537197728696')
-    print('here here?!')
 # [END functions_get_daterange_colors][ENTRY POINT for get_daterange_colors]
 
 
