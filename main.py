@@ -187,3 +187,58 @@ def get_meal_colors(uID, event_id):
             for doc in collection.stream():
                 print(f'{doc.id} => {doc.to_dict()}')
 # [END functions_get_meal_colors][Called in retrieve_colors]
+
+
+# [START functions_process_dish][ENTRY POINT for process-dish-colors]
+# def process_dish(event,context):
+#     # triggered by cloud storage: bucket_rainbow_meals
+#     # triggered by cloud storage event: google.storage.object.finalize
+#     bucket = event['bucket']
+#     filename = event['name']
+#     timestamp = event['timeCreated']
+#     event_id = context.event_id
+#     img_uri = 'gs://{}/{}'.format(bucket, filename)
+#     print('URI: {}'.format(img_uri))
+#     print('Event ID: {}'.format(context.event_id))
+#     print('Event type: {}'.format(context.event_type))
+#     print('Created: {}'.format(event['timeCreated']))
+
+#     # call functions_detect_color
+#     process_color(img_uri, timestamp, event_id)
+# # [END functions_process_dish][ENTRY POINT for process-dish-colors]
+
+
+# # [START functions_process_color][Called in process-dish-colors]
+# def process_color(uri, timestamp, event_id=0):
+#     print('Received URI: {}'.format(uri))
+#     image = vision.types.Image()
+#     image.source.image_uri = uri
+#     response = client.image_properties(image=image)
+
+#     props = response.image_properties_annotation
+#     colors_array = props.dominant_colors.colors
+#     print('Retrieved colors_array')
+
+#     # retrieve dominant colors and encode color data into a base64-encoded byte string
+#     # publish to topic "TopicColorsDetected" in pub/sub
+#     data = {
+#         'colors': colors_array,
+#         'event_id': event_id,
+#         'timestamp': timestamp,
+#         'img_uri': uri,
+#         'uID': 'testUser10',      #TBD
+#     }
+
+#     message_data = json.dumps(data).encode('utf-8')
+#     print(' {} '.format(message_data))
+#     # topic_name = 'projects/keen-boulder-286521/topics/TopicColorsDetected'
+#     # future = publisher.publish(topic_name, data=message_data)
+#     # message_id = future.result()
+#     # print(' {} '.format(message_id))
+
+
+#     if response.error.message:
+#         raise Exception(
+#             '{}\nFor more info on error messages, check: '
+#             'https://cloud.google.com/apis/design/errors'.format(response.error.message))
+# [END functions_process_color][Called in process-dish-colors]
