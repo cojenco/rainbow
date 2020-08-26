@@ -161,83 +161,48 @@ def get_dish_colors(uID, event_id):
 # [END functions_get_dish_colors][Called in get_weekly_colors]
 
 
+### INITIAL WAY OF RETRIEVING COLORS [TO DELETE]
 # [START functions_retrieve_colors][ENTRY POINT for retrieve_colors]
-def retrieve_colors(event, context):
-    # background cloud cunction to be triggered by Pub/Sub topic: TopicRetrieveColors
-    print('Retrieving colors from Firestore')
-    print(' {} '.format(event))
-    print('BELOW IS CONTEXT')
-    print(' {} '.format(context))
-    uID = 'testUser1'
+# def retrieve_colors(event, context):
+#     # background cloud cunction to be triggered by Pub/Sub topic: TopicRetrieveColors
+#     print('Retrieving colors from Firestore')
+#     print(' {} '.format(event))
+#     print('BELOW IS CONTEXT')
+#     print(' {} '.format(context))
+#     uID = 'testUser1'
 
-    if event.get('data'):
-        uID = base64.b64decode(event['data']).decode('utf-8')
-        print(' {} '.format(uID))
-    else:
-        print('Data sector is missing in the Pub/Sub message')
+#     if event.get('data'):
+#         uID = base64.b64decode(event['data']).decode('utf-8')
+#         print(' {} '.format(uID))
+#     else:
+#         print('Data sector is missing in the Pub/Sub message')
     
-    # query Firestore: filter meals within the past week
-    # query Firestore: retrieve meal docs from users/{'uID'}/meals collection
-    utc_now = datetime.now(timezone.utc)
-    dt = utc_now - timedelta(7)
-    start_time = u'{}'.format(dt)
-    end_time = u'{}'.format(utc_now)
+#     # query Firestore: filter meals within the past week
+#     # query Firestore: retrieve meal docs from users/{'uID'}/meals collection
+#     utc_now = datetime.now(timezone.utc)
+#     dt = utc_now - timedelta(7)
+#     start_time = u'{}'.format(dt)
+#     end_time = u'{}'.format(utc_now)
 
-    meals_ref = db.collection('users').document('{}'.format(uID)).collection('meals').where(u'timestamp', u'>=', start_time).where(u'timestamp', u'<=', end_time)
-    meals = meals_ref.stream()
-    for doc in meals:
-        # print(f'{doc.id} => {doc.to_dict()}')
-        event_id = f'{doc.id}'
-        get_meal_colors(uID, event_id)
-# [END functions_retrieve_colors][ENTRY POINT for retrieve_colors]
-
-
-# [START functions_get_daterange_colors][ENTRY POINT for get_daterange_colors]
-def get_daterange_colors(event, context):
-    # background cloud cunction to be triggered by Pub/Sub topic: TopicGetDaterangeColors
-    print('Get colors by daterange')
-    # print(' {} '.format(event))
-    # print('BELOW IS CONTEXT')
-    # print(' {} '.format(context))
-    utc_now = datetime.now(timezone.utc)
-    dt = utc_now - timedelta(7)
-    start_time = u'{}'.format(dt)
-    end_time = u'{}'.format(utc_now)
-    print(start_time)
-    print(end_time)
-
-    uID = 'testUser10'
-    # uID = event['attributes']['uID']
-    meals_ref = db.collection(u'meals').where(u'timestamp', u'>=', start_time).where(u'timestamp', u'<=', end_time)
-    meals = meals_ref.stream()
-    for doc in meals:
-        print(f'{doc.id} => {doc.to_dict()}')
-        event_id = f'{doc.id}'
-        get_collection_colors(event_id)
-
-    daterange_meals = meals_ref.where(u'uID', u'==', uID).stream()
-    print('CAN WE SEE second query? {}'.format(daterange_meals))
-# [END functions_get_daterange_colors][ENTRY POINT for get_daterange_colors]
+#     meals_ref = db.collection('users').document('{}'.format(uID)).collection('meals').where(u'timestamp', u'>=', start_time).where(u'timestamp', u'<=', end_time)
+#     meals = meals_ref.stream()
+#     for doc in meals:
+#         # print(f'{doc.id} => {doc.to_dict()}')
+#         event_id = f'{doc.id}'
+#         get_meal_colors(uID, event_id)
+# # [END functions_retrieve_colors][ENTRY POINT for retrieve_colors]
 
 
-# [START functions_get_collection_colors][Called in get_daterange_colors]
-def get_collection_colors(event_id):
-        collections = db.collection('meals').document('{}'.format(event_id)).collections()
-        for collection in collections:
-            for doc in collection.stream():
-                print(f'{doc.id} => {doc.to_dict()}')
-# [END functions_get_collection_colors][Called in get_daterange_colors]
-
-
-# [START functions_get_meal_colors][Called in retrieve_colors]
-def get_meal_colors(uID, event_id):
-        collections = db.collection('users').document('{}'.format(uID)).collection('meals').document('{}'.format(event_id)).collections()
-        for collection in collections:
-            for doc in collection.stream():
-                print(f'{doc.id} => {doc.to_dict()}')
+# # [START functions_get_meal_colors][Called in retrieve_colors]
+# def get_meal_colors(uID, event_id):
+#         collections = db.collection('users').document('{}'.format(uID)).collection('meals').document('{}'.format(event_id)).collections()
+#         for collection in collections:
+#             for doc in collection.stream():
+#                 print(f'{doc.id} => {doc.to_dict()}')
 # [END functions_get_meal_colors][Called in retrieve_colors]
 
 
+### TRYING TO SAVE ALL COLORS AS 1 FIELD IN A DOCUMENT INSTEAD OF A COLLECTION
 # [START functions_process_dish][ENTRY POINT for process-dish-colors]
 # def process_dish(event,context):
 #     # triggered by cloud storage: bucket_rainbow_meals
