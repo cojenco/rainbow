@@ -141,7 +141,7 @@ def get_weekly_colors(event, context):
         # print(f'{doc.id} => {doc.to_dict()}')
         event_id = f'{doc.id}'
         dish = get_dish_colors(uID, event_id)
-        all_colors.append(dish)
+        all_colors.extend(dish)
 
     print(all_colors)
 # [END functions_get_weekly_colors][ENTRY POINT for get_weekly_colors]
