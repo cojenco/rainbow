@@ -15,6 +15,7 @@ db = firestore.Client()
 
 
 
+########## DEPLOYED FUNCTIONS ################################
 # [START functions_entry_get_image][ENTRY POINT for findColor]
 def entry_get_image(event,context):
     # triggered by cloud storage: bucket_rainbow_meals
@@ -124,11 +125,11 @@ def firestore_colors(event, context):
     color_ref = meal_ref.collection('colors').add(message)
     print('Saved to Firestore')
 # [END functions_firestore_colors]
+########## DEPLOYED FUNCTIONS ################################
 
 
 
-
-
+########## ORIGINAL FUNCTIONS ################################
 # [START functions_detect_color][Called in img-colors-extract]
 def detect_color(uri, timestamp, event_id=0):
     print('Received URI: {}'.format(uri))
