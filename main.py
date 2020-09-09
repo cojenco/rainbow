@@ -125,6 +125,82 @@ def firestore_colors(event, context):
     color_ref = meal_ref.collection('colors').add(message)
     print('Saved to Firestore')
 # [END functions_firestore_colors]
+
+# [START functions_call_weekly_colors][ENTRY POINT for call_weekly_colors]
+def callWeeklyColors(request):
+    # Set CORS headers for the preflight request
+    if request.method == 'OPTIONS':
+        # Allows POST requests from any origin with the Content-Type
+        # header and caches preflight response for an 3600s
+        headers = {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST, GET',
+            'Access-Control-Allow-Headers': 'Content-Type',
+            'Access-Control-Max-Age': '3600'
+        }
+
+        return ('', 204, headers)
+
+    # Set CORS headers for the main request
+    headers = {
+        'Access-Control-Allow-Origin': '*'
+    }
+
+    uID = '112304765224766018668'
+    request_json = request.get_json()
+    if request.args and 'message' in request.args:
+        uID = request.args.get('message')
+        print('ARGS')
+        print(' {} '.format(uID))
+        # return request.args.get('message')
+    elif request_json and 'message' in request_json:
+        print('request_json')
+        uID = request_json['message']
+        print(' {} '.format(uID))
+        # return request_json['message']
+    else:
+        print('Hello World 200!')
+        # return ('Hello World!', 200, headers)
+
+    # query Firestore: filter meals within the past week
+    # query Firestore: retrieve meal docs from users/{'uID'}/meals collection
+    print('{}'.format(uID))
+    utc_now = datetime.now(timezone.utc)
+    dt = utc_now - timedelta(7)
+    start_time = u'{}'.format(dt)
+    end_time = u'{}'.format(utc_now)
+    all_colors = []
+
+    meals_ref = db.collection('users').document('{}'.format(uID)).collection('meals').where(u'timestamp', u'>=', start_time).where(u'timestamp', u'<=', end_time)
+    meals = meals_ref.stream()
+    for doc in meals:
+        print(f'{doc.id} => {doc.to_dict()}')
+        event_id = f'{doc.id}'
+        dish = get_dish_colors(uID, event_id)
+        all_colors.extend(dish)
+
+    print(all_colors)
+    # data = {
+    #     'colors': all_colors,
+    # }
+    # response = make_response(data)
+    response = jsonify({"colors": all_colors})
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    return response
+# [END functions_call_weekly_colors][ENTRY POINT for call_weekly_colors]
+
+# [START functions_get_dish_colors][Called in call_weekly_colors]
+def get_dish_colors(uID, event_id):
+     colors = []  
+     collections = db.collection('users').document('{}'.format(uID)).collection('meals').document('{}'.format(event_id)).collections()
+     for collection in collections:
+          for doc in collection.stream():
+               color = doc.to_dict()
+               colors.append(color)
+          #  print(f'{doc.id} => {doc.to_dict()}')
+     print('Here is a list of colors')  
+     return colors 
+# [END functions_get_dish_colors][Called in call_weekly_colors]
 ########## DEPLOYED FUNCTIONS ################################
 
 
